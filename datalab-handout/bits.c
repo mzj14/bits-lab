@@ -164,8 +164,7 @@ int getByte(int x, int n) {
  *   Rating: 3 
  */
 int logicalShift(int x, int n) {
-  /* use a mask number to get the (32-n) low level bits of (x >> n) */
-  /* the n high level bits of the mask number is 0, the remaining low level bits are all 1 */
+  /* use a mask number with (32 - n) low level bits equal 1 */
   int mask_number = ~(((1 << 31) >> n) << 1);
   return (x >> n) & mask_number;
 }
@@ -177,7 +176,17 @@ int logicalShift(int x, int n) {
  *   Rating: 4
  */
 int bitCount(int x) {
-  return 2;
+  int a = 0xFF + (0xFF << 8);
+  int b = a ^ (a << 8);
+  int c = b ^ (b << 4);
+  int d = c ^ (c << 2);
+  int e = d ^ (d << 1);
+  x = (x & e) + ((x >> 1) & e);
+  x = (x & d) + ((x >> 2) & d);
+  x = (x & c) + ((x >> 4) & c);
+  x = (x & b) + ((x >> 8) & b);
+  x = (x & a) + ((x >> 16) & a); 
+  return x;
 }
 /* 
  * bang - Compute !x without using !
