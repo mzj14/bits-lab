@@ -218,7 +218,9 @@ int tmin(void) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
-  return 2;
+  int shift_bits = 32 + (~n + 1);
+  int fake_number = (x << shift_bits) >> shift_bits;
+  return !(x ^ fake_number);
 }
 /* 
  * divpwr2 - Compute x/(2^n), for 0 <= n <= 30
@@ -229,7 +231,7 @@ int fitsBits(int x, int n) {
  *   Rating: 2
  */
 int divpwr2(int x, int n) {
-    return 2;
+  return 2;
 }
 /* 
  * negate - return -x 
@@ -239,6 +241,7 @@ int divpwr2(int x, int n) {
  *   Rating: 2
  */
 int negate(int x) {
+  /* this is just 2's complement operation */
   return (~x + 1);
 }
 /* 
@@ -249,7 +252,8 @@ int negate(int x) {
  *   Rating: 3
  */
 int isPositive(int x) {
-  return !((x >> 31) & 1) & !!x;
+  /* note that the negative integer's sign bit is 1, positive 0, don't forget 0 */
+  return !(x >> 31) & !!x;
 }
 /* 
  * isLessOrEqual - if x <= y  then return 1, else return 0 
@@ -259,7 +263,17 @@ int isPositive(int x) {
  *   Rating: 3
  */
 int isLessOrEqual(int x, int y) {
-  return 2;
+  /* 1 means x and y have same sign; 0 otherwise */
+  int same_sign = !((x >> 31) ^ (y >> 31));
+  /* 1 means x is negative; 0 otherwise */
+  int negative_x = !!(x >> 31);
+  /* true means x is negative while y is positive */
+  int ans_1 = (!same_sign) & negative_x;
+  
+  int result = x + (~y + 1);
+  /* if x and y have the same sign, then ans_2 = true means x <= y */
+  int ans_2 = same_sign & (!!(result >> 31) | !result);
+  return ans_1 | ans_2;
 }
 /*
  * ilog2 - return floor(log base 2 of x), where x > 0
