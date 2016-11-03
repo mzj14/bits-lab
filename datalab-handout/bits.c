@@ -151,15 +151,9 @@ int bitAnd(int x, int y) {
  *   Rating: 2
  */
 int getByte(int x, int n) {
-
-
-
-
-
-
-
-  return 2;
-
+  /* use right shift to let the target byte in LSB, then extract it. */
+  int shiftBits = n << 3;
+  return (x >> shiftBits) & 0xFF;
 }
 /* 
  * logicalShift - shift x to the right by n, using a logical shift
