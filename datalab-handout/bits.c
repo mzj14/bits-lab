@@ -139,7 +139,8 @@ NOTES:
  *   Rating: 1
  */
 int bitAnd(int x, int y) {
-  return 2;
+  /* the implementation is based on DeMorgan's law */
+  return ~((~x) | (~y));
 }
 /* 
  * getByte - Extract byte n from word x
