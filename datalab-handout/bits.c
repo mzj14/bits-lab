@@ -196,7 +196,8 @@ int bitCount(int x) {
  *   Rating: 4 
  */
 int bang(int x) {
-  return 2;
+  /* note that the highest level bit will change after the 2's complement operation except for 0x80000000 and 0 */
+  return ~((x | (~x + 1)) >> 31) & 1;
 }
 /* 
  * tmin - return minimum two's complement integer 
