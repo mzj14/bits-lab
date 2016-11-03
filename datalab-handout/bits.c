@@ -231,7 +231,10 @@ int fitsBits(int x, int n) {
  *   Rating: 2
  */
 int divpwr2(int x, int n) {
-  return 2;
+  int signx = x >> 31;
+  int possible_bias = ~((~0) << n);
+  int true_bias = signx & possible_bias;
+  return (x + true_bias) >> n;
 }
 /* 
  * negate - return -x 
