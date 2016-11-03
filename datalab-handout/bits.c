@@ -152,8 +152,8 @@ int bitAnd(int x, int y) {
  */
 int getByte(int x, int n) {
   /* use right shift to let the target byte in LSB, then extract it. */
-  int shiftBits = n << 3;
-  return (x >> shiftBits) & 0xFF;
+  int shift_bits = n << 3;
+  return (x >> shift_bits) & 0xFF;
 }
 /* 
  * logicalShift - shift x to the right by n, using a logical shift
@@ -164,7 +164,10 @@ int getByte(int x, int n) {
  *   Rating: 3 
  */
 int logicalShift(int x, int n) {
-  return 2;
+  /* use a mask number to get the (32-n) low level bits of (x >> n) */
+  /* the n high level bits of the mask number is 0, the remaining low level bits are all 1 */
+  int mask_number = ~(((1 << 31) >> n) << 1);
+  return (x >> n) & mask_number;
 }
 /*
  * bitCount - returns count of number of 1's in word
