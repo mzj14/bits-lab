@@ -176,17 +176,18 @@ int logicalShift(int x, int n) {
  *   Rating: 4
  */
 int bitCount(int x) {
-  int a = 0xFF + (0xFF << 8);
-  int b = a ^ (a << 8);
-  int c = b ^ (b << 4);
-  int d = c ^ (c << 2);
-  int e = d ^ (d << 1);
-  x = (x & e) + ((x >> 1) & e);
-  x = (x & d) + ((x >> 2) & d);
-  x = (x & c) + ((x >> 4) & c);
-  x = (x & b) + ((x >> 8) & b);
-  x = (x & a) + ((x >> 16) & a); 
-  return x;
+  /* get this solution from Wekipedia related to Hamming_weight */
+  int a = 0xFF + (0xFF << 8); /* a = 0x0000FFFF */
+  int b = a ^ (a << 8); /* b = 0x00FF00FF */
+  int c = b ^ (b << 4); /* c = 0x0F0F0F0F */
+  int d = c ^ (c << 2); /* c = 0x33333333 */
+  int e = d ^ (d << 1); /* e = 0x55555555 */
+  int every_2_bits = (x & e) + ((x >> 1) & e);  /* 1s in each 2-bit slice of x */
+  int every_4_bits = (every_2_bits & d) + ((every_2_bits >> 2) & d);  /* 1s in each 4-bit slice of x */
+  int every_8_bits = (every_4_bits & c) + ((every_4_bits >> 4) & c);  /* 1s in each 8-bit slice of x */
+  int every_16_bits = (every_8_bits & b) + ((every_8_bits >> 8) & b);  /* 1s in each 16-bit slice of x */
+  int every_32_bits = (every_16_bits & a) + ((every_16_bits >> 16) & a); /* 1s in each 32-bit slice of x */
+  return every_32_bits;
 }
 /* 
  * bang - Compute !x without using !
@@ -286,7 +287,27 @@ int isLessOrEqual(int x, int y) {
  *   Rating: 4
  */
 int ilog2(int x) {
-  return 2;
+  /* suppose that the hightest bit order of 1 in x is n */
+  int most_2_one = x | (x >> 1);
+  int most_4_one = most_2_one | (most_2_one >> 2);
+  int most_8_one = most_4_one | (most_4_one >> 4);
+  int most_16_one = most_8_one | (most_8_one >> 8);
+  int most_32_one = most_16_one | (most_16_one >> 16);
+  /* now in most_32_one any bit whose order is <= n is 1 and any bit whose order is > n remains 0*/
+  
+  /* count all the 1 in most_32_one */
+  int a = 0xFF + (0xFF << 8); /* a = 0x0000FFFF */
+  int b = a ^ (a << 8); /* b = 0x00FF00FF */
+  int c = b ^ (b << 4); /* c = 0x0F0F0F0F */
+  int d = c ^ (c << 2); /* c = 0x33333333 */
+  int e = d ^ (d << 1); /* e = 0x55555555 */
+  int every_2_bits = (most_32_one & e) + ((most_32_one >> 1) & e);  /* 1s in each 2-bit slice of x */
+  int every_4_bits = (every_2_bits & d) + ((every_2_bits >> 2) & d);  /* 1s in each 4-bit slice of x */
+  int every_8_bits = (every_4_bits & c) + ((every_4_bits >> 4) & c);  /* 1s in each 8-bit slice of x */
+  int every_16_bits = (every_8_bits & b) + ((every_8_bits >> 8) & b);  /* 1s in each 16-bit slice of x */
+  int every_32_bits = (every_16_bits & a) + ((every_16_bits >> 16) & a); /* 1s in each 32-bit slice of x */
+  every_32_bits = every_32_bits + (~0); /* current result should minus 1 */
+  return every_32_bits;
 }
 /* 
  * float_neg - Return bit-level equivalent of expression -f for
