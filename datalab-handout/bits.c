@@ -321,7 +321,15 @@ int ilog2(int x) {
  *   Rating: 2
  */
 unsigned float_neg(unsigned uf) {
- return 2;
+ unsigned exp = uf & 0x7F800000; /* get the exp part */
+ unsigned frac = uf & 0x007FFFFF; /* get the frac part */
+ if (exp == 0x7F800000 && frac != 0) {
+  /* it is a NaN number */
+  return uf; 
+ } else {
+  /* convert the sign bit */
+  return uf ^ 0x80000000;
+ }
 }
 /* 
  * float_i2f - Return bit-level equivalent of expression (float) x
@@ -347,5 +355,19 @@ unsigned float_i2f(int x) {
  *   Rating: 4
  */
 unsigned float_twice(unsigned uf) {
-  return 2;
+  unsigned exp = uf & 0x7F800000; /* get the exp part */
+  unsigned sign = uf & 0x80000000; /* get the frac part */
+  /* if uf is NaN or is infinity */
+  if (exp == 0x7F800000) {
+    /* it is a NaN number */
+    return uf;
+  }
+  
+  /* if uf is normalized values */
+  if (exp) {
+    return uf + 0x00800000;
+  }
+  
+  /* if uf is denormalized values */
+  return (uf << 1) | sign;
 }
