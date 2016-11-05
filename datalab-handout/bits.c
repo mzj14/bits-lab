@@ -341,7 +341,57 @@ unsigned float_neg(unsigned uf) {
  *   Rating: 4
  */
 unsigned float_i2f(int x) {
-  return 2;
+  /* the sign part of (float) x */
+  unsigned sign;
+  unsigned shift_bits;
+  /* the exp part of (float) x */
+  unsigned exp;
+  /* the frac part of (float) x */
+  unsigned frac;
+  /* the absolute value of x */  
+  unsigned abs_x;
+  unsigned flag;
+  // 0 is denormalized floating representation, tackle it specially  
+  if (x == 0) {
+    return 0;
+  }
+  
+  if (x < 0) {  
+    sign = 1;  
+    abs_x = -x;  
+  } else {
+    sign = 0;
+    abs_x = x;
+  }
+  
+  shift_bits = 0;
+  
+  // Shift until the highest bit equal to 1
+  while (!(abs_x & 0x80000000)) {  
+    abs_x <<= 1;  
+    shift_bits++;  
+  }
+  
+  /* Shift one more time, so that we could get the fractional part of float representation */
+  abs_x <<= 1;
+  shift_bits++;
+  
+  exp = (32 - shift_bits) + 127;
+  
+  /* the fractional part is only 23 bits, we have to carry out the rounding rules */
+  flag = 0;
+  /* ( > 1/2) */ 
+  if ((abs_x & 0x01FF) > 0x0100) {
+    flag = 1;
+  }
+  /* ( == 1/2), the least significant bit should be "even" */  
+  if ((abs_x & 0x03FF) == 0x0300) {
+    flag = 1;
+  }
+
+  frac = abs_x >> 9;
+  
+  return (sign << 31) + frac + (exp << 23) + flag;
 }
 /* 
  * float_twice - Return bit-level equivalent of expression 2*f for
