@@ -207,6 +207,7 @@ int bang(int x) {
  *   Rating: 1
  */
 int tmin(void) {
+  /* the answer is 0x80000000 */
   return (1 << 31);
 }
 /* 
@@ -219,6 +220,7 @@ int tmin(void) {
  *   Rating: 2
  */
 int fitsBits(int x, int n) {
+  /* judge that if all the (32 - n + 1) bits equal the sign bit */
   int shift_bits = 32 + (~n + 1);
   int fake_number = (x << shift_bits) >> shift_bits;
   return !(x ^ fake_number);
@@ -232,6 +234,7 @@ int fitsBits(int x, int n) {
  *   Rating: 2
  */
 int divpwr2(int x, int n) {
+  /* if x >= 0, then the answer is (x >> n); if x < 0, then the answer is (x + 2^n - 1) >> n */
   int signx = x >> 31;
   int possible_bias = ~((~0) << n);
   int true_bias = signx & possible_bias;
